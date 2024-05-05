@@ -35,11 +35,9 @@ import sys
 import argparse
 import logging
 import time
+from PIL import Image
+import pillow_heif
 from dataclasses import dataclass
-
-logging.basicConfig(level=logging.DEBUG,
-    format="%(asctime)s - %(filename)s/%(funcName)s(%(lineno)d) - %(levelname)s - %(message)s")
-logging.disable(logging.DEBUG)
 
 start_time = time.time()
 
@@ -118,7 +116,22 @@ def logger_example():
     logging.critical("This is a critical message")
 
 
-def convert_meic(heic_pic):
+def convert_heic(heic_pic) -> Image:
+    heif_file = pillow_heif.read_heif(heic_pic)
+    image = Image.frombytes(
+        heif_file.mode,
+        heif_file.size,
+        heif_file.data,
+        "raw",
+    )
+    # image.save("./picture_name.png", format("png"))
+
+    return image
+
+def handle_picture(input_pic, dest_loc, type):
+    pic_name = "name"
+    img = convert_heic(input_pic)
+    img.save(dest_loc + '\\' + pic_name, format(type))
 
 
 def main():
