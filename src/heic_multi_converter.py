@@ -22,7 +22,7 @@ __copyright__ = "Copyright $YEAR, $COMPANY_NAME"
 __credits__ = ["One developer", "And another one", "etc"]
 __date__ = "2024/05/02"
 __deprecated__ = False
-__email__ =  "patrik.tegetmeier@web.de"
+__email__ = "patrik.tegetmeier@web.de"
 __license__ = "GPLv3"
 __maintainer__ = "developer"
 __status__ = "Production"
@@ -41,6 +41,7 @@ from dataclasses import dataclass
 
 start_time = time.time()
 
+
 ################################################################################
 # Variables (always in capitals)
 @dataclass
@@ -48,11 +49,14 @@ class ExitCodes:
     """
     This data class describes the exit codes
     """
+
     SUCCESS = 0
     FAILED = 1
 
+
 ################################################################################
 # Functions
+
 
 def handle_arguments() -> list:
     """
@@ -65,7 +69,7 @@ def handle_arguments() -> list:
         "--version",
         action="version",
         version="version : " + __version__ + ", author: " + __author__ + "date: " + __date__,
-        help="show program's version, the author, and the version's data"
+        help="show program's version, the author, and the version's data",
     )
 
     parser.add_argument(
@@ -73,7 +77,7 @@ def handle_arguments() -> list:
         type=str.strip,
         help="the source path from where to load the MEIC typed photos from, default is the current folder",
         dest="src",
-        default="./"
+        default="./",
     )
 
     parser.add_argument(
@@ -81,23 +85,23 @@ def handle_arguments() -> list:
         type=str.strip,
         help="the destination path to where the converted photos shall be stored, default is the current folder",
         dest="dest",
-        default="./"
+        default="./",
     )
 
     parser.add_argument(
         "-t",
         "--type",
-        choices=['png', 'jpeg'],
+        choices=["png", "jpeg"],
         default="png",
         dest="type",
-        help="select the resulting photo tpye, png and jpeg are possible, default is png"
+        help="select the resulting photo tpye, png and jpeg are possible, default is png",
     )
 
     parser.add_argument(
         "--verboseOff",
         action="store_true",
         help="turn off the verbosity [default: verbosity on]",
-        dest="verboff"
+        dest="verboff",
     )
 
     args: list = parser.parse_args()
@@ -105,33 +109,49 @@ def handle_arguments() -> list:
     return args
 
 
-def logger_example():
-    """Example logging function
-
-    """
-    logging.info("This is an info message")
-    logging.debug("This is an debug message")
-    logging.warning("This is a warning message")
-    logging.error("This is a error message")
-    logging.critical("This is a critical message")
-
-
 def convert_heic(heic_pic) -> Image:
-    heif_file = pillow_heif.read_heif(heic_pic)
+    """
+    This function converts the heic typed picture into a PIL Image object
+
+    Args:
+        heic_pic (str): heic typed file including path information
+
+    Returns:
+        Image: object of type Image
+    """
+    logging.info("heic file %s found", heic_pic)
+
+    heif_file = pillow_heif.open_heif(heic_pic)
     image = Image.frombytes(
         heif_file.mode,
         heif_file.size,
         heif_file.data,
         "raw",
     )
-    # image.save("./picture_name.png", format("png"))
 
     return image
 
+
 def handle_picture(input_pic, dest_loc, type):
-    pic_name = "name"
-    img = convert_heic(input_pic)
-    img.save(dest_loc + '\\' + pic_name, format(type))
+    """
+    This function calls the heic conversion function and saves the PIL Image object into a image file typed by the selected type information.
+
+    Args:
+        input_pic (str): input heic file including the path to the picture
+        dest_loc (str): destination path where the coverted picture shall be stored
+        type (str): resuling picture file type
+    """
+    logging.info("Source picture file name = %s", input_pic)
+    pic_name = os.path.splitext(os.path.basename(input_pic))[0]
+
+    logging.info("Source picture basename = %s", pic_name)
+    img: Image = convert_heic(input_pic)
+
+    tup = (dest_loc, pic_name)
+    img_name: str = "\\".join(tup)
+
+    logging.info("Destination picture name = %s", img_name + "." + type)
+    img.save(img_name + "." + type, format(type))
 
 
 def main():
@@ -149,12 +169,18 @@ def main():
     logging.info("Destination location = %s", arguments.dest)
     logging.info("Result photo type = %s", arguments.type)
 
-    sys.exit(ExitCodes.SUCCESS)
+    ext = (".heic", ".HEIC")
+    for files in os.listdir(arguments.src):
+        logging.info("Found file = %s", files)
+        if files.endswith(ext):
+            tup = (arguments.src, files)
+            file: str = "\\".join(tup)
+            handle_picture(file, arguments.dest, arguments.type)
 
+    sys.exit(ExitCodes.SUCCESS)
 
 
 ################################################################################
 # Scripts
 if __name__ == "__main__":
     main()
-
