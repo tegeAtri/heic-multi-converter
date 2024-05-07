@@ -1,11 +1,15 @@
 {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
     "files.trimTrailingWhitespace": true,
     "files.autoSave": "onFocusChange",
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
     },
+    "black-formatter.importStrategy": "useBundled",
+    "black-formatter.args": [
+        "--line-length", "100"
+    ],
     "python.testing.pytestArgs": [
         "src/test/python_tests"
     ],
@@ -15,9 +19,5 @@
     "pylint.importStrategy": "fromEnvironment",
     "pylint.args": [
         "--rcfile=pyproject.toml"
-    ],
-    "black-formatter.importStrategy": "fromEnvironment",
-    "black-formatter.args": [
-        "--config=pyproject.toml"
     ],
 }
