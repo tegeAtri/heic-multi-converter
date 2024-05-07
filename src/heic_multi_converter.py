@@ -119,7 +119,7 @@ def convert_heic(heic_pic) -> Image:
     Returns:
         Image: object of type Image
     """
-    logging.info("heic file %s found", heic_pic)
+    logging.debug("heic file %s found", heic_pic)
 
     heif_file = pillow_heif.open_heif(heic_pic)
     image = Image.frombytes(
@@ -141,10 +141,10 @@ def handle_picture(input_pic, dest_loc, type):
         dest_loc (str): destination path where the coverted picture shall be stored
         type (str): resuling picture file type
     """
-    logging.info("Source picture file name = %s", input_pic)
+    logging.debug("Source picture file name = %s", input_pic)
     pic_name = os.path.splitext(os.path.basename(input_pic))[0]
 
-    logging.info("Source picture basename = %s", pic_name)
+    logging.debug("Source picture basename = %s", pic_name)
     img: Image = convert_heic(input_pic)
 
     tup = (dest_loc, pic_name)
