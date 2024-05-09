@@ -152,6 +152,37 @@ def handle_picture(input_pic, dest_loc, pic_type):
     img.save(img_name + "." + pic_type, format(pic_type))
 
 
+def check_src_dir(src_path: str) -> bool:
+    """
+    This function checks if the named photo source directory exists
+
+    Args:
+        src_path (str): Source path where the heic typed photos shall be hosted
+
+    Returns:
+        bool: True if the source folder exists, otherwise False
+    """
+    success: bool = os.path.isdir(src_path)
+
+    return success
+
+
+def check_dest_dir(dest_path: str):
+    """
+    This function checks if the named photo destination directory exists. If
+    it is not existing it will be created.
+
+    Args:
+        dest_path (str): Destination path where the resulting photos shall be stored to.
+    """
+    if os.path.isdir(dest_path) is False:
+        try:
+            os.makedirs(dest_path)
+        except OSError as error:
+            print(error)
+            sys.exit(FAILED)
+
+
 def main():
     """
     This function is the main function of the script.
@@ -166,6 +197,12 @@ def main():
     logging.info("Source location = %s", arguments.src)
     logging.info("Destination location = %s", arguments.dest)
     logging.info("Result photo type = %s", arguments.type)
+
+    if check_src_dir(arguments.src) is False:
+        logging.error("Source location is not existing")
+        sys.exit(FAILED)
+
+    check_dest_dir(arguments.dest)
 
     ext = (".heic", ".HEIC")
     for files in os.listdir(arguments.src):
