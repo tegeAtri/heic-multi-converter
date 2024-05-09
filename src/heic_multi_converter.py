@@ -1,6 +1,7 @@
-""" Short description of this Python module.
+""" HEIC photo type converter.
 
-Longer description of this module.
+This script contverts all .heic files in a given folder into png or jpg in a defined
+destination folder. The type of the resulting file is defined by an script argument.
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -20,47 +21,41 @@ __authors__ = ["One developer", "And another one", "etc"]
 __contact__ = "patrik.tegetmeier@web.de"
 __copyright__ = "Copyright $YEAR, $COMPANY_NAME"
 __credits__ = ["One developer", "And another one", "etc"]
-__date__ = "2024/05/02"
+__date__ = "2024/05/09"
 __deprecated__ = False
 __email__ = "patrik.tegetmeier@web.de"
 __license__ = "GPLv3"
 __maintainer__ = "developer"
 __status__ = "Production"
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
-################################################################################
+###################################################################################################
 # Imports
+
 import os
 import sys
 import argparse
 import logging
-import time
 from PIL import Image
 import pillow_heif
-from dataclasses import dataclass
-
-start_time = time.time()
 
 
-################################################################################
+###################################################################################################
 # Variables (always in capitals)
-@dataclass
-class ExitCodes:
-    """
-    This data class describes the exit codes
-    """
 
-    SUCCESS = 0
-    FAILED = 1
+SUCCESS = 0
+FAILED = 1
 
-
-################################################################################
+###################################################################################################
 # Functions
 
 
 def handle_arguments() -> list:
     """
     This function handles the command line arguments
+
+    Returns:
+        list: list of handed over command line arguments
     """
     parser = argparse.ArgumentParser()
 
@@ -75,7 +70,8 @@ def handle_arguments() -> list:
     parser.add_argument(
         action="store",
         type=str.strip,
-        help="the source path from where to load the MEIC typed photos from, default is the current folder",
+        help="the source path from where to load the MEIC typed \
+            photos from, default is the current folder",
         dest="src",
         default="./",
     )
@@ -83,7 +79,8 @@ def handle_arguments() -> list:
     parser.add_argument(
         action="store",
         type=str.strip,
-        help="the destination path to where the converted photos shall be stored, default is the current folder",
+        help="the destination path to where the converted photos shall \
+            be stored, default is the current folder",
         dest="dest",
         default="./",
     )
@@ -132,9 +129,10 @@ def convert_heic(heic_pic) -> Image:
     return image
 
 
-def handle_picture(input_pic, dest_loc, type):
+def handle_picture(input_pic, dest_loc, pic_type):
     """
-    This function calls the heic conversion function and saves the PIL Image object into a image file typed by the selected type information.
+    This function calls the heic conversion function and saves the
+    PIL Image object into a image file typed by the selected type information.
 
     Args:
         input_pic (str): input heic file including the path to the picture
@@ -147,16 +145,16 @@ def handle_picture(input_pic, dest_loc, type):
     logging.debug("Source picture basename = %s", pic_name)
     img: Image = convert_heic(input_pic)
 
-    tup = (dest_loc, pic_name)
+    tup: tuple = (dest_loc, pic_name)
     img_name: str = "\\".join(tup)
 
-    logging.info("Destination picture name = %s", img_name + "." + type)
-    img.save(img_name + "." + type, format(type))
+    logging.info("Destination picture name = %s", img_name + "." + pic_type)
+    img.save(img_name + "." + pic_type, format(pic_type))
 
 
 def main():
     """
-    This function is the main function of the script
+    This function is the main function of the script.
     """
     arguments: list = handle_arguments()
 
@@ -177,7 +175,7 @@ def main():
             file: str = "\\".join(tup)
             handle_picture(file, arguments.dest, arguments.type)
 
-    sys.exit(ExitCodes.SUCCESS)
+    sys.exit(SUCCESS)
 
 
 ################################################################################
