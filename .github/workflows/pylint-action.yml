@@ -1,23 +1,23 @@
-name: pylint
-run-name: ${{ github.actor }} is running pylint Actions
+name: Pylint
+
 on: [push]
+
 jobs:
-  check-bats-version:
-    runs-on: windows-latest
-    strategy:
-        matrix:
-          python-version: ["3.12"]
+  build:
+
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pipenv
-          pipenv shell
-      - name: Analysing the code with pylint
-        run: |
-          pylint $(git ls-files '*.py')
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.12
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint
+    - name: Analysing the code with pylint
+      run: |
+        find . -name '*.py' -exec pylint {} \;
+
