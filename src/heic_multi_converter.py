@@ -183,11 +183,11 @@ def check_dest_dir(dest_path: str):
             sys.exit(FAILED)
 
 
-def main():
+def main(arguments=None) -> None:
     """
     This function is the main function of the script.
     """
-    arguments: list = handle_arguments()
+    arguments = handle_arguments()
 
     if arguments.verboff:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.WARNING)
