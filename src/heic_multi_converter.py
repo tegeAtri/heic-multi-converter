@@ -68,6 +68,8 @@ def handle_arguments() -> list:
     )
 
     parser.add_argument(
+        "-s",
+        "--src",
         action="store",
         type=str.strip,
         help="the source path from where to load the MEIC typed \
@@ -77,6 +79,8 @@ def handle_arguments() -> list:
     )
 
     parser.add_argument(
+        "-d",
+        "--dest",
         action="store",
         type=str.strip,
         help="the destination path to where the converted photos shall \
@@ -148,7 +152,7 @@ def handle_picture(input_pic, dest_loc, pic_type):
     tup: tuple = (dest_loc, pic_name)
     img_name: str = "\\".join(tup)
 
-    logging.info("Destination picture name = %s", img_name + "." + pic_type)
+    logging.debug("Destination picture name = %s", img_name + "." + pic_type)
     img.save(img_name + "." + pic_type, format(pic_type))
 
 
@@ -194,9 +198,9 @@ def main(arguments=None) -> None:
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
-    logging.info("Source location = %s", arguments.src)
-    logging.info("Destination location = %s", arguments.dest)
-    logging.info("Result photo type = %s", arguments.type)
+    logging.debug("Source location = %s", arguments.src)
+    logging.debug("Destination location = %s", arguments.dest)
+    logging.debug("Result photo type = %s", arguments.type)
 
     if check_src_dir(arguments.src) is False:
         logging.error("Source location is not existing")
@@ -205,13 +209,17 @@ def main(arguments=None) -> None:
     check_dest_dir(arguments.dest)
 
     ext = (".heic", ".HEIC")
+    count: int = 0
     for files in os.listdir(arguments.src):
         logging.info("Found file = %s", files)
+        print("Found file =", files)
         if files.endswith(ext):
+            count = count + 1
             tup = (arguments.src, files)
             file: str = "\\".join(tup)
             handle_picture(file, arguments.dest, arguments.type)
 
+    print("Number of photos converted =", count)
     sys.exit(SUCCESS)
 
 
