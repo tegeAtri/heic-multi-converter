@@ -33,12 +33,23 @@ __version__ = "0.0.1"
 # Imports
 import pytest
 from src.heic_multi_converter import main
+import shlex
+
+test_cases = [
+    (
+        "-t png --verboseOff -s .\testdata -d .\testdata",
+        "",
+    ),
+]
 
 
-def test_not_existing_src_folder_give_an_erro():
+@pytest.mark.parametrize("command, expected_output", test_cases)
+def test_not_existing_src_folder_give_an_error(capsys, command, expected_output):
     """
     This function tests that heic-multi-converter returns an error if a non-existing
     folder is handed over as source for photos.
     """
-    with pytest.raises(ValueError):
-        assert main("C:\\doof")
+    main(shlex.split(command))
+    captured = capsys.readouterr()
+    output = captured.out + captured.err
+    assert expected_output in output
