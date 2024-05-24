@@ -76,6 +76,7 @@ def handle_arguments() -> list:
             photos from, default is the current folder",
         dest="src",
         default="./",
+        required=True,
     )
 
     parser.add_argument(

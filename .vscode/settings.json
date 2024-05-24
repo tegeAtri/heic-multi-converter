@@ -10,12 +10,8 @@
     "black-formatter.args": [
         "--line-length", "100"
     ],
-    "python.testing.pytestArgs": [
-        "src/test/python_tests"
-    ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.testing.cwd": "${workspaceFolder}",
     "pylint.importStrategy": "fromEnvironment",
     "pylint.args": [
         "--rcfile=pyproject.toml"
