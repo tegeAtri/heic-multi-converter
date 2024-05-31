@@ -50,7 +50,7 @@ FAILED = 1
 # Functions
 
 
-def handle_arguments() -> list:
+def parse_args(arg_list: list[str] | None):
     """
     This function handles the command line arguments
 
@@ -69,24 +69,22 @@ def handle_arguments() -> list:
 
     parser.add_argument(
         "-s",
-        "--src",
+        "--source",
         action="store",
         type=str.strip,
         help="the source path from where to load the MEIC typed \
             photos from, default is the current folder",
-        dest="src",
         default="./",
         required=True,
     )
 
     parser.add_argument(
         "-d",
-        "--dest",
+        "--destination",
         action="store",
         type=str.strip,
         help="the destination path to where the converted photos shall \
             be stored, default is the current folder",
-        dest="dest",
         default="./",
     )
 
@@ -94,6 +92,7 @@ def handle_arguments() -> list:
         "-t",
         "--type",
         choices=["png", "jpeg"],
+        action="store",
         default="png",
         dest="type",
         help="select the resulting photo tpye, png and jpeg are possible, default is png",
@@ -103,11 +102,24 @@ def handle_arguments() -> list:
         "--verboseOff",
         action="store_true",
         help="turn off the verbosity [default: verbosity on]",
-        dest="verboff",
+        dest="verboseOff",
+        default="False",
     )
 
-    args: list = parser.parse_args()
+    parser.add_argument(
+        "-b",
+        "--debug",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
 
+    args = parser.parse_args(arg_list)
+
+    if args.debug:  # pragma: no cover
+        print("--- debug output ---")
+        print(f"  {args=}")
+        print(f"  {args.source=}, {args.destination=}, {args.type=}, {args.verboseOff=}")
+        print("")
     return args
 
 
@@ -188,37 +200,37 @@ def check_dest_dir(dest_path: str):
             sys.exit(FAILED)
 
 
-def main(arguments=None) -> None:
+def main(arg_list: list[str] | None = None) -> None:
     """
     This function is the main function of the script.
     """
-    arguments = handle_arguments()
+    arguments = parse_args(arg_list)
 
-    if arguments.verboff:
+    if arguments.verboseOff:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.WARNING)
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
-    logging.debug("Source location = %s", arguments.src)
-    logging.debug("Destination location = %s", arguments.dest)
+    logging.debug("Source location = %s", arguments.source)
+    logging.debug("Destination location = %s", arguments.destination)
     logging.debug("Result photo type = %s", arguments.type)
 
-    if check_src_dir(arguments.src) is False:
+    if check_src_dir(arguments.source) is False:
         logging.error("Source location is not existing")
         sys.exit(FAILED)
 
-    check_dest_dir(arguments.dest)
+    check_dest_dir(arguments.destination)
 
     ext = (".heic", ".HEIC")
     count: int = 0
-    for files in os.listdir(arguments.src):
+    for files in os.listdir(arguments.source):
         logging.info("Found file = %s", files)
         print("Found file =", files)
         if files.endswith(ext):
             count = count + 1
-            tup = (arguments.src, files)
+            tup = (arguments.source, files)
             file: str = "\\".join(tup)
-            handle_picture(file, arguments.dest, arguments.type)
+            handle_picture(file, arguments.destination, arguments.type)
 
     print("Number of photos converted =", count)
     sys.exit(SUCCESS)
