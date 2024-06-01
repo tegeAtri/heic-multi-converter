@@ -52,8 +52,23 @@ test_cases_sys_exit = [
     ("s", "error: the following arguments are required: -s"),  # no flag passed
     ("+s", "error: the following arguments are required: -s"),  # wrong type of flag passe
     ("-p", "error: the following arguments are required: -s"),  # wrong argument name
-    # ("-s './doof' --verboseOff", "ERROR: Source location is not existing"),
-    ("-s './doof' --verboseOff", ""),
+    (
+        "-s './doof' --verboseOff",
+        "error: Source location is not existing",
+    ),  # not existing source folder
+    (
+        "-s .\testdata -t jpg",
+        "error: argument -t/--type: invalid choice: 'jpg' (choose from 'png', 'jpeg')",  # not supported picture type for argument -t
+    ),
+    (
+        "-s .\testdata -t",
+        "error: argument -t/--type: expected one argument",
+    ),  # missing argument for option -t
+    (
+        "-s .\testdata -t jpeg -d",
+        "error: argument -d/--destination: expected one argument",
+    ),  # destination argument without data
+    ("-s ./test", "error: no heic/HEIC picture file found"),
 ]
 
 
