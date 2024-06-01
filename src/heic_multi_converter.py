@@ -35,6 +35,7 @@ __version__ = "0.1.0"
 import os
 import sys
 import argparse
+import glob
 import logging
 from PIL import Image
 import pillow_heif
@@ -216,13 +217,16 @@ def main(arg_list: list[str] | None = None) -> None:
     logging.debug("Result photo type = %s", arguments.type)
 
     if check_src_dir(arguments.source) is False:
-        logging.error("Source location is not existing")
-        sys.exit(FAILED)
+        sys.exit("error: Source location is not existing")
 
     check_dest_dir(arguments.destination)
 
     ext = (".heic", ".HEIC")
     count: int = 0
+    if not glob.glob(arguments.source + "*.HEIC"):
+        if not glob.glob(arguments.source + "*.heic"):
+            sys.exit("error: no heic/HEIC picture file found")
+
     for files in os.listdir(arguments.source):
         logging.info("Found file = %s", files)
         print("Found file =", files)
