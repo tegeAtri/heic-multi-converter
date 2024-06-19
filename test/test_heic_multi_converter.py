@@ -31,7 +31,8 @@ __version__ = "0.0.1"
 
 ################################################################################
 # Imports
-from src.heic_multi_converter import parse_args, main
+from src.heic_multi_converter import parse_args, main, check_src_dir, check_for_file_type
+
 import pytest
 import shlex
 
@@ -53,10 +54,6 @@ test_cases_sys_exit = [
     ("+s", "error: the following arguments are required: -s"),  # wrong type of flag passe
     ("-p", "error: the following arguments are required: -s"),  # wrong argument name
     (
-        "-s './doof' --verboseOff",
-        "error: Source location is not existing",
-    ),  # not existing source folder
-    (
         "-s .\testdata -t jpg",
         "error: argument -t/--type: invalid choice: 'jpg' (choose from 'png', 'jpeg')",  # not supported picture type for argument -t
     ),
@@ -68,7 +65,6 @@ test_cases_sys_exit = [
         "-s .\testdata -t jpeg -d",
         "error: argument -d/--destination: expected one argument",
     ),  # destination argument without data
-    ("-s ./test", "error: no heic/HEIC picture file found"),
 ]
 
 
@@ -79,3 +75,17 @@ def test_argparse_heic_multi_converter_sys_exit(capsys, command, expected_output
     captured = capsys.readouterr()  # Capture both stdout and stderr
     output = captured.err + captured.out  # Combine stdout and stderr
     assert expected_output in output
+
+
+def test_that_source_folder_is_not_avail():
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        check_src_dir("./doof")
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 3
+
+
+def test_if_picture_types_are_avail_in_source():
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        check_for_file_type("./test")
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 4
