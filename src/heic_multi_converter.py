@@ -46,6 +46,9 @@ import pillow_heif
 
 SUCCESS = 0
 FAILED = 1
+FOLDER_CANNOT_BE_CREATED = 2
+SOURCE_FOLDER_NOT_EXISTING = 3
+NO_FILE_TYPE = 4
 
 ###################################################################################################
 # Functions
@@ -147,7 +150,7 @@ def convert_heic(heic_pic) -> Image:
     return image
 
 
-def handle_picture(input_pic, dest_loc, pic_type):
+def handle_picture(input_pic: str, dest_loc: str, pic_type: str):
     """
     This function calls the heic conversion function and saves the
     PIL Image object into a image file typed by the selected type information.
@@ -176,13 +179,10 @@ def check_src_dir(src_path: str) -> bool:
 
     Args:
         src_path (str): Source path where the heic typed photos shall be hosted
-
-    Returns:
-        bool: True if the source folder exists, otherwise False
     """
-    success: bool = os.path.isdir(src_path)
-
-    return success
+    if os.path.isdir(src_path) is False:
+        logging.error("Source folder %s is not existing", src_path)
+        sys.exit(SOURCE_FOLDER_NOT_EXISTING)
 
 
 def check_dest_dir(dest_path: str):
@@ -198,46 +198,56 @@ def check_dest_dir(dest_path: str):
             os.makedirs(dest_path)
         except OSError as error:
             print(error)
-            sys.exit(FAILED)
+            logging.error("Destination folder cannot be created in %s", dest_path)
+            sys.exit(FOLDER_CANNOT_BE_CREATED)
+
+
+def check_for_file_type(source: str):
+    """
+    This function checks if heic of HEIC file types are existing in the source folder
+
+    Args:
+        source (str): _description_
+    """
+    if not glob.glob(source + "*.HEIC"):
+        if not glob.glob(source + "*.heic"):
+            logging.error("No valid source files are avail in = %s", source)
+            sys.exit(NO_FILE_TYPE)
 
 
 def main(arg_list: list[str] | None = None) -> None:
     """
     This function is the main function of the script.
     """
-    arguments = parse_args(arg_list)
+    args = parse_args(arg_list)
 
-    if arguments.verboseOff:
+    if args.verboseOff:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.WARNING)
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
-    logging.debug("Source location = %s", arguments.source)
-    logging.debug("Destination location = %s", arguments.destination)
-    logging.debug("Result photo type = %s", arguments.type)
+    logging.debug("Source location = %s", args.source)
+    logging.debug("Destination location = %s", args.destination)
+    logging.debug("Result photo type = %s", args.type)
 
-    if check_src_dir(arguments.source) is False:
-        sys.exit("error: Source location is not existing")
+    check_src_dir(args.source)
 
-    check_dest_dir(arguments.destination)
+    check_dest_dir(args.destination)
 
-    ext = (".heic", ".HEIC")
+    check_for_file_type(args.source)
+
     count: int = 0
-    if not glob.glob(arguments.source + "*.HEIC"):
-        if not glob.glob(arguments.source + "*.heic"):
-            sys.exit("error: no heic/HEIC picture file found")
-
-    for files in os.listdir(arguments.source):
+    ext = (".heic", ".HEIC")
+    for files in os.listdir(args.source):
         logging.info("Found file = %s", files)
         print("Found file =", files)
         if files.endswith(ext):
             count = count + 1
-            tup = (arguments.source, files)
+            tup = (args.source, files)
             file: str = "\\".join(tup)
-            handle_picture(file, arguments.destination, arguments.type)
+            handle_picture(file, args.destination, args.type)
 
     print("Number of photos converted =", count)
-    sys.exit(SUCCESS)
 
 
 ################################################################################
