@@ -27,17 +27,20 @@ __email__ = "patrik.tegetmeier@web.de"
 __license__ = "GPLv3"
 __maintainer__ = "developer"
 __status__ = "Production"
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
-################################################################################
+##################################################################################################
 # Imports
-from src.heic_multi_converter import parse_args, main, check_src_dir, check_for_file_type
 
-import pytest
 import shlex
+import pytest
+from src.heic_multi_converter import main, check_src_dir, check_for_file_type
 
 
 def test_shlex():
+    """
+    Testing shlex functionality
+    """
     # I want to write this
     command = "--verboseOff -s '.\\doof'"
 
@@ -55,7 +58,8 @@ test_cases_sys_exit = [
     ("-p", "error: the following arguments are required: -s"),  # wrong argument name
     (
         "-s .\testdata -t jpg",
-        "error: argument -t/--type: invalid choice: 'jpg' (choose from 'png', 'jpeg')",  # not supported picture type for argument -t
+        "error: argument -t/--type: invalid choice: 'jpg' (choose from 'png', 'jpeg')",
+        # not supported picture type for argument -t
     ),
     (
         "-s .\testdata -t",
@@ -70,6 +74,14 @@ test_cases_sys_exit = [
 
 @pytest.mark.parametrize("command, expected_output", test_cases_sys_exit)
 def test_argparse_heic_multi_converter_sys_exit(capsys, command, expected_output):
+    """
+    This function test the argparse arguments handling
+
+    Args:
+        capsys (_type_): _description_
+        command (str): the command line arguments for the test
+        expected_output (str): the expected output depending for the test case
+    """
     with pytest.raises(SystemExit):  # Expecting SystemExit due to argparse error
         main(shlex.split(command))
     captured = capsys.readouterr()  # Capture both stdout and stderr
@@ -78,6 +90,9 @@ def test_argparse_heic_multi_converter_sys_exit(capsys, command, expected_output
 
 
 def test_that_source_folder_is_not_avail():
+    """
+    This function checks that a not existing source folder will result in a sys.exit(3)
+    """
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         check_src_dir("./doof")
     assert pytest_wrapped_e.type == SystemExit
@@ -85,6 +100,10 @@ def test_that_source_folder_is_not_avail():
 
 
 def test_if_picture_types_are_avail_in_source():
+    """
+    This function checks that no picture files in the handed over source folder will result in
+    a sys.exit(4)
+    """
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         check_for_file_type("./test")
     assert pytest_wrapped_e.type == SystemExit
